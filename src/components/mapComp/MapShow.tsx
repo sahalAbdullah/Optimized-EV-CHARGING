@@ -11,7 +11,7 @@ import {
 import ActionAccept from '../../components/Ui/actionAccept';
 
 const MapShow = (props: any) => {
-  const GOOGLE_MAPS_APIKEY = 'AIzaSyCwuhtvibZlrrYuJC0DmUrUHZP5WUN_sMg';
+  const GOOGLE_MAPS_APIKEY = 'ADD your Google API key here';
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [station1, setStation1] = useState<boolean>(false);
   const [station2, setStation2] = useState<boolean>(false);
