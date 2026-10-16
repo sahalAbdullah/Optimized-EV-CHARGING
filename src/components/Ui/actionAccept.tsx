@@ -1,52 +1,32 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {
-  Button,
-  Actionsheet,
-  HStack,
-  Pressable,
-  Text,
-  View,
-  VStack,
-} from 'native-base';
+import {Actionsheet, HStack, Pressable, Text, View, VStack} from 'native-base';
 import {firebase} from '@react-native-firebase/database';
+import {FIREBASE_CONFIG, DEMO_USER_ID} from '../../../config';
 
 export default function ActionAccept(props: any) {
-  const user = 'UH9XyXrLmscRcOZ7lxPdS3N9SYC2';
+  const user = DEMO_USER_ID;
   const [open, setOpen] = useState<boolean>(false);
 
   const initialRender = useRef(false);
 
   const [result, setResult] = useState<any>();
 
-  // firebase
-  //   .app()
-  //   .database('https://react-native-course-cb023-default-rtdb.firebaseio.com')
-  //   .ref(`/initiateRequest/${user}`)
-  //   .on('value', snapshot => {
-  //     setResult(snapshot.val());
-  //   });
   useEffect(() => {
-    console.log('Resultt: ', result);
     if (result && result?.response !== 'null') {
-      console.log('Got result', result);
       setOpen(true);
       // props.loaderHandler();
     }
   }, [result]);
 
   const fetchResponse = () => {
-    console.log('Fetching res');
     firebase
       .app()
-      .database('https://react-native-course-cb023-default-rtdb.firebaseio.com')
+      .database(FIREBASE_CONFIG.databaseURL)
       .ref(`/initiateRequest/${user}`)
       .on('value', snapshot => {
         if (initialRender.current) {
-          console.log('Render: ', initialRender.current);
-          console.log('Setting data');
           setResult(snapshot.val());
         } else {
-          console.log('Setting to true');
           initialRender.current = true;
         }
       });

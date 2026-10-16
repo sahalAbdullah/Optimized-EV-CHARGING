@@ -1,8 +1,8 @@
 import React from 'react';
 import AuthContent from '../components/Auth/AuthContent';
-import {useContext, useState, useEffect} from 'react';
-import LoadingOverlay from '../components/Ui/LoadindOverlay';
-import {View, Text} from 'native-base';
+import {useState, useEffect} from 'react';
+import LoadingOverlay from '../components/Ui/LoadingOverlay';
+import {View} from 'native-base';
 import {Colors} from '../constants/Colors';
 
 import {login} from '../../util/auth';

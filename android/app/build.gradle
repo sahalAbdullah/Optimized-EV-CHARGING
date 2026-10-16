@@ -101,6 +101,15 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+
+        // Google Maps key is read from android/local.properties (not committed):
+        //   MAPS_API_KEY=your_key_here
+        def localProps = new Properties()
+        def localPropsFile = rootProject.file("local.properties")
+        if (localPropsFile.exists()) {
+            localPropsFile.withInputStream { localProps.load(it) }
+        }
+        manifestPlaceholders = [MAPS_API_KEY: localProps.getProperty("MAPS_API_KEY", "")]
     }
 
     splits {

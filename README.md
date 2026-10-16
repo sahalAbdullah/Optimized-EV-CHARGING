@@ -1,121 +1,106 @@
-# Optimized EV Charging (React Native)
+# Optimized EV Charging
 
-A React Native mobile app for EV users that authenticates with Firebase, reads live battery/SOC values, compares nearby charging options, and helps users pick a charging route based on distance/time.
+A React Native app that helps an electric-vehicle driver pick a charging station. It reads the car's live state of charge (SOC) from Firebase, shows nearby stations on a map, works out the driving distance and time to each one with the Google Directions API, and lets the driver send a charging request and accept the station's response.
 
-## What this project does
-- User sign up/login with Firebase Authentication
-- Reads SOC / message updates from Firebase Realtime Database
-- Shows current user location on map
-- Displays 3 charging station options
-- Calculates route distance and duration to each station using Google Directions
-- Lets user select/accept a preferred charging option
+<!-- Add a screenshot or short GIF of the app here, e.g. docs/demo.gif -->
+
+## Features
+
+- Sign up and log in with Firebase Authentication (email + password)
+- Live SOC updates from Firebase Realtime Database
+- Map with the driver's current location and three charging stations
+- Route distance and travel time to each station (Google Directions)
+- Request / accept flow for a charging slot, synced through Realtime Database
 
 ## Tech stack
+
 - React Native 0.71 + TypeScript
-- Redux Toolkit + React Redux
+- Redux Toolkit for auth state
 - NativeBase UI
-- Firebase (Auth + Realtime Database)
+- Firebase Authentication + Realtime Database
 - react-native-maps + react-native-maps-directions
-- @react-native-community/geolocation + permissions
+- @react-native-community/geolocation, react-native-permissions
+
+## How it works
+
+1. The user signs up or logs in (`util/auth.ts` calls the Firebase Auth REST API).
+2. On the home screen (`src/screens/Welcome.tsx`) the app asks for location permission and gets the current position.
+3. It subscribes to `message/<userId>` in Realtime Database to receive SOC updates.
+4. `src/components/mapComp/MapShow.tsx` draws the stations and requests a route to each one, collecting distance and duration.
+5. Pressing **Request Initiate** sends the request; `src/components/Ui/actionAccept.tsx` listens on `initiateRequest/<userId>` for the station's response and shows the options with their travel times.
+
+The three station locations are fixed demo points in `src/constants/LocationPlaces.ts`.
 
 ## Project structure
 
 ```text
 .
-├── App.tsx                         # App entry, auth gate, navigation, providers
+├── App.tsx                  # Entry point: providers, auth gate, navigation
+├── config.example.ts        # Template for your own keys (copy to config.ts)
 ├── src
-│   ├── screens                     # Screen-level UI (Login, SignUp, Welcome)
+│   ├── screens              # Login, SignUp, Welcome
 │   ├── components
-│   │   ├── Auth                    # Auth form/input components
-│   │   ├── mapComp                 # Map + routing UI logic
-│   │   └── Ui                      # Reusable UI pieces (buttons, overlays, actions)
-│   ├── features
-│   │   └── authentication          # Redux auth slice/state actions
-│   ├── constants                   # Color and fixed location constants
-│   ├── helpers                     # Shared interfaces and screen constants
-│   ├── permisssions                # Location permission helper
-│   ├── assets                      # Static assets (e.g., SVG icons)
-│   └── MainNavigation              # Alternate/experimental navigation module
-├── store
-│   └── store.ts                    # Redux store setup
-├── util
-│   ├── auth.ts                     # Firebase Auth API helper
-│   └── firebase.ts                 # Firebase app/database initialization
-├── android                         # Android native project
-├── ios                             # iOS native project
-└── __tests__                       # Jest tests
+│   │   ├── Auth             # Auth form and inputs
+│   │   ├── mapComp          # Map + routing
+│   │   └── Ui               # Buttons, loading overlay, accept sheet
+│   ├── features             # Redux auth slice
+│   ├── constants            # Colors and station coordinates
+│   ├── helpers              # Shared types and screen names
+│   ├── permissions          # Location permission helper
+│   └── MainNavigation       # Alternate navigation module
+├── store                    # Redux store
+├── util                     # Firebase init and auth helper
+├── android
+└── ios
 ```
 
-## Requirements
+## Configuration
 
-### Core tools
-- Node.js (LTS recommended)
-- npm or Yarn
-- React Native development environment
+No keys are stored in this repository. Before running the app you need your own Firebase project and Google Maps key.
 
-### Android
-- Android Studio
-- Android SDK + emulator (or physical Android device)
+1. **App config.** Copy the template and fill it in:
 
-### iOS (macOS only)
-- Xcode
-- CocoaPods
+   ```bash
+   cp config.example.ts config.ts
+   ```
 
-## Configuration needed before running
+   Values come from Firebase Console → Project settings → Your apps (web app). `config.ts` is git-ignored.
 
-1. **Firebase setup**
-   - Create your Firebase project (Auth + Realtime Database).
-   - Replace Firebase config values in:
-     - `/home/runner/work/Optimized-EV-CHARGING/Optimized-EV-CHARGING/util/firebase.ts`
-     - `/home/runner/work/Optimized-EV-CHARGING/Optimized-EV-CHARGING/util/auth.ts`
+2. **Firebase native config.** Download `google-services.json` from Firebase Console and place it at `android/app/google-services.json` (git-ignored). For iOS, add `GoogleService-Info.plist` to `ios/`.
 
-2. **Google Maps Directions key**
-   - Add a valid Google Maps API key in:
-     - `/home/runner/work/Optimized-EV-CHARGING/Optimized-EV-CHARGING/src/components/mapComp/MapShow.tsx`
-   - Replace `ADD your Google API key here`.
+3. **Google Maps key (Android).** Add this line to `android/local.properties` (git-ignored):
 
-3. **Platform native setup**
-   - Ensure Firebase and maps native setup are completed for Android/iOS (package configuration files, platform permissions, API key wiring).
+   ```properties
+   MAPS_API_KEY=your_key_here
+   ```
 
-## Installation
+   Enable the Maps SDK for Android and the Directions API for this key, and restrict it to your app's package name and SHA-1 in Google Cloud Console.
 
-From `/home/runner/work/Optimized-EV-CHARGING/Optimized-EV-CHARGING`:
+4. **Database rules.** Make sure your Realtime Database rules only allow signed-in users to read and write their own nodes, not open "test mode" rules.
+
+## Getting started
+
+Requirements: Node.js (LTS), a React Native development environment, Android Studio (Android) or Xcode + CocoaPods (iOS, macOS only).
 
 ```bash
 npm install
+npm start          # Metro bundler
+npm run android    # in a second terminal
+npm run ios        # macOS only
 ```
 
-## Run the app
+## Scripts
 
-### Start Metro
-```bash
-npm start
-```
+| Command | What it does |
+| --- | --- |
+| `npm start` | Start the Metro bundler |
+| `npm run android` | Build and run on Android |
+| `npm run ios` | Build and run on iOS |
+| `npm run lint` | Run ESLint |
+| `npm test` | Run Jest tests |
 
-### Android
-```bash
-npm run android
-```
+## Limitations and next steps
 
-### iOS (macOS)
-```bash
-npm run ios
-```
-
-## Available scripts
-- `npm run start` – start Metro bundler
-- `npm run android` – run Android app
-- `npm run ios` – run iOS app
-- `npm run lint` – run ESLint
-- `npm test` – run Jest tests
-
-## Typical app flow
-1. User signs up or logs in
-2. App requests location permission
-3. App fetches current location and SOC data
-4. Map shows nearby charging stations and route stats
-5. User initiates and accepts preferred charging option
-
-## Notes
-- Some files include hardcoded sample IDs/keys and placeholder values for development.
-- For production, move all secrets/keys to secure environment configuration and rotate exposed keys.
+- Station locations are hardcoded demo points; a real version would load them from an API.
+- The SOC listener uses a fixed demo user ID (`DEMO_USER_ID` in `config.ts`) rather than the signed-in user.
+- Station choice is shown by travel time only; ranking by SOC, charger availability and price would be the natural next step.

@@ -1,15 +1,14 @@
-import React, {useEffect, useState, useRef, useCallback} from 'react';
-import {TouchableOpacity, StyleSheet} from 'react-native';
-import {View, Text, Pressable, useToast, HStack} from 'native-base';
+import React, {useEffect, useState, useCallback} from 'react';
+import {View, Text, Pressable, HStack} from 'native-base';
 import {Colors} from '../constants/Colors';
 import Geolocation from '@react-native-community/geolocation';
 import {firebase} from '@react-native-firebase/database';
+import {FIREBASE_CONFIG, DEMO_USER_ID} from '../../config';
 import MapShow from '../components/mapComp/MapShow';
-import {requestLocationPermission} from '../permisssions/perm';
+import {requestLocationPermission} from '../permissions/perm';
 const Welcome = () => {
   const [soc, setSoc] = useState<string>();
-  const [isOpen, setIsOpen] = useState<boolean>(true);
-  const [paramsState, setParamsState] = useState<any>({
+  const [, setParamsState] = useState<any>({
     station1: {
       distance: 0.0,
       time: 0.0,
@@ -40,9 +39,8 @@ const Welcome = () => {
     },
   });
 
-  const user = 'UH9XyXrLmscRcOZ7lxPdS3N9SYC2';
+  const user = DEMO_USER_ID;
   const params = (data: any) => {
-    console.log('Data Here:', data);
     setParamsState((prevState: any) => ({
       ...prevState,
       station1: {
@@ -55,24 +53,14 @@ const Welcome = () => {
       },
       station3: {
         distance: data.station3.distance,
-        time: data.station2.time,
+        time: data.station3.time,
       },
     }));
-    console.log(paramsState);
-    // firebase
-    //   .app()
-    //   .database('https://react-native-course-cb023-default-rtdb.firebaseio.com')
-    //   .ref(`/initiateRequest/${user}`)
-    //   .update({
-    //     response: 'null',
-    //     request: paramsState,
-    //   })
-    //   .then(() => console.log('Data set.'));
   };
 
   firebase
     .app()
-    .database('https://react-native-course-cb023-default-rtdb.firebaseio.com')
+    .database(FIREBASE_CONFIG.databaseURL)
     .ref(`/message/${user}`)
     .on('value', snapshot => {
       updateSoc(snapshot.val());
@@ -91,7 +79,7 @@ const Welcome = () => {
         }));
       },
       error => {
-        console.log('Error getting current location:', error);
+        console.warn('Error getting current location:', error);
       },
       {
         enableHighAccuracy: true, // Use GPS if available
@@ -100,7 +88,6 @@ const Welcome = () => {
     );
   }, []);
   useEffect(() => {
-    console.log('Soc: ', soc);
     setParamsState((prevState: any) => ({
       ...prevState,
       soc: soc,
