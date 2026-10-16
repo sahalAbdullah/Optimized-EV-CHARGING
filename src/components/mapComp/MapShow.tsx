@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {StyleSheet} from 'react-native';
-import {View, VStack, Text, Pressable, Spinner, useToast} from 'native-base';
+import {View, VStack, Text, Pressable, Spinner} from 'native-base';
 import MapView, {Marker} from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import {
@@ -9,16 +9,14 @@ import {
   kalmaChowk,
 } from '../../constants/LocationPlaces';
 import ActionAccept from '../../components/Ui/actionAccept';
+import {GOOGLE_MAPS_API_KEY} from '../../../config';
 
 const MapShow = (props: any) => {
-  const GOOGLE_MAPS_APIKEY = 'ADD your Google API key here';
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [station1, setStation1] = useState<boolean>(false);
   const [station2, setStation2] = useState<boolean>(false);
   const [station3, setStation3] = useState<boolean>(false);
-  const closeHandler = () => {
-    console.log('Action Sheet Closed');
-  };
+  const closeHandler = () => {};
   const [paramsState, setParamsState] = useState<any>({
     station1: {
       distance: 0,
@@ -34,7 +32,6 @@ const MapShow = (props: any) => {
     },
   });
   const charge1 = (distance: number, time: number) => {
-    console.log('Distance Here1:', distance, time);
     setParamsState((prevState: any) => ({
       ...prevState,
       station1: {
@@ -44,7 +41,6 @@ const MapShow = (props: any) => {
     }));
   };
   const charge2 = (distance: number, time: number) => {
-    console.log('Distance Here2:', distance, time);
     setParamsState((prevState: any) => ({
       ...prevState,
       station2: {
@@ -54,7 +50,6 @@ const MapShow = (props: any) => {
     }));
   };
   const charge3 = (distance: number, time: number) => {
-    console.log('Distance Here3:', distance, time);
     setParamsState((prevState: any) => ({
       ...prevState,
       station3: {
@@ -67,9 +62,7 @@ const MapShow = (props: any) => {
   const showState = () => {
     if (loadingData) {
     } else {
-      console.log('In Maps:', paramsState);
-      const params = props.dataHandler(paramsState);
-      console.log('Params Here:', params);
+      props.dataHandler(paramsState);
       setStation1(false);
       setStation2(false);
       setStation3(false);
@@ -122,7 +115,7 @@ const MapShow = (props: any) => {
           <MapViewDirections
             origin={props.myProps.myLocation}
             destination={allamIqbalTown}
-            apikey={GOOGLE_MAPS_APIKEY}
+            apikey={GOOGLE_MAPS_API_KEY}
             strokeWidth={station1 ? 7 : 0}
             strokeColor="blue"
             onReady={result => {
@@ -132,7 +125,7 @@ const MapShow = (props: any) => {
           <MapViewDirections
             origin={props.myProps.myLocation}
             destination={kalmaChowk}
-            apikey={GOOGLE_MAPS_APIKEY}
+            apikey={GOOGLE_MAPS_API_KEY}
             strokeWidth={station2 ? 7 : 0}
             strokeColor="blue"
             onReady={result => {
@@ -142,7 +135,7 @@ const MapShow = (props: any) => {
           <MapViewDirections
             origin={props.myProps.myLocation}
             destination={joharTown}
-            apikey={GOOGLE_MAPS_APIKEY}
+            apikey={GOOGLE_MAPS_API_KEY}
             strokeWidth={station3 ? 7 : 0}
             strokeColor="blue"
             onReady={result => {

@@ -52,6 +52,12 @@ yarn-error.log
 **/fastlane/screenshots
 **/fastlane/test_output
 
+# Secrets / local config
+config.ts
+android/app/google-services.json
+ios/GoogleService-Info.plist
+.env
+
 # Bundle artifact
 *.jsbundle
 
